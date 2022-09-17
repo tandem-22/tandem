@@ -50,26 +50,25 @@ const Home: NextPage = () => {
             }
           });
         });
+      } else {
+        setCity("Could not find location");
+        setPremise("Location services disabled");
       }
+      const webSocket = new WebSocket("ws://localhost:3001/ws");
+      webSocket.onmessage = ({ data }: { data: string }) => {
+        const parsedData: {
+          risk_level: 0 | 1 | 2;
+          danger_left: boolean;
+          danger_right: boolean;
+        } = JSON.parse(data);
+
+        const { risk_level, danger_left, danger_right } = parsedData;
+        setRiskLevel(risk_level);
+        setPassing({ left: danger_left, right: danger_right });
+      };
       setRead(true);
     }
   }, [read]);
-  useEffect(() => {
-    const webSocket = new WebSocket("ws://localhost:3001/ws");
-    webSocket.onmessage = ({ data }: { data: string }) => {
-      const parsedData: {
-        risk_level: 0 | 1 | 2;
-        danger_left: boolean;
-        danger_right: boolean;
-      } = JSON.parse(data);
-
-      const { risk_level, danger_left, danger_right } = parsedData;
-      setRiskLevel(risk_level);
-      setPassing({ left: danger_left, right: danger_right });
-    };
-
-    return webSocket.close();
-  }, []);
 
   return (
     <>
