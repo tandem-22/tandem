@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Status } from "@/components/Status";
@@ -6,15 +6,17 @@ import { Warning } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
+import { Controls } from "@/components/Controls";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
 const Home: NextPage = () => {
-  const [premise, setPremise] = useState("Calibrating...");
   const [city, setCity] = useState("Calibrating...");
+  const [premise, setPremise] = useState("Finding location...");
   const [read, setRead] = useState(false);
+  const [showHUD, setShowHUD] = useState(true);
 
   useEffect(() => {
     if (read) {
@@ -64,19 +66,48 @@ const Home: NextPage = () => {
         bgSize="cover"
         h="100vh"
       >
-        <Flex justifyContent="space-between">
-          <Box fontSize="lg" bg="#202226" py="4" pl="6" pr="14" rounded="xl">
-            <Box color="white">
-              <Heading fontSize="xl">{city}</Heading>
-              <Text fontSize="lg">{premise}</Text>
+        {showHUD && (
+          <Flex justifyContent="space-between">
+            <Box>
+              <Box
+                fontSize="lg"
+                bg="#202226"
+                py="4"
+                pl="6"
+                pr="14"
+                rounded="xl"
+              >
+                <Box color="white">
+                  <Heading fontSize="xl">{city}</Heading>
+                  <Text fontSize="lg">{premise}</Text>
+                </Box>
+                <Box mt="1">
+                  <Text>23.9 °C, Cloudy</Text>
+                  <Text>{formattedDate}</Text>
+                </Box>
+              </Box>
             </Box>
-            <Box mt="1">
-              <Text>23.9 °C, Cloudy</Text>
-              <Text>{formattedDate}</Text>
-            </Box>
-          </Box>
-          <Status state="danger" onClick={() => setShowWarning(true)} />
-        </Flex>
+            <VStack>
+              <Status state="safe" onClick={() => setShowWarning(true)} />
+              <Controls />
+            </VStack>
+          </Flex>
+        )}
+        {showHUD && (
+          <Button pos="absolute" bottom="6" right="8" colorScheme="red">
+            End Ride
+          </Button>
+        )}
+        <Button
+          pos="absolute"
+          bottom="6"
+          left="8"
+          colorScheme="gray"
+          color="black"
+          onClick={() => setShowHUD(!showHUD)}
+        >
+          {showHUD ? "Hide HUD" : "Show HUD"}
+        </Button>
       </Box>
       {showWarning && <Warning setShowWarning={setShowWarning} />}
     </>
