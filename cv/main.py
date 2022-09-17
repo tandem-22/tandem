@@ -19,7 +19,7 @@ pipeline = depthai.Pipeline()
 
 # First, we want the Color camera as the output
 cam_rgb = pipeline.createColorCamera()
-cam_rgb.setPreviewSize(672 / 2, 384 / 2)  # 300x300 will be the preview frame size, available as 'preview' output of the node
+cam_rgb.setPreviewSize(336, 192)  # 300x300 will be the preview frame size, available as 'preview' output of the node
 cam_rgb.setVideoSize(672, 384)
 cam_rgb.setInterleaved(False)
 
