@@ -10,7 +10,9 @@
 
 # next.js
 /.next/
-/out/
+
+# check this in for RPI
+# /out/
 
 # production
 /build
