@@ -2,11 +2,16 @@ import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Status } from "@/components/Status";
-import { Warning } from "@/components/Warning";
+import { IncidentReport } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
 import { PassingIndicator } from "@/components/PassingIndicator";
+import PassBell from "assets/chime.mp3";
+import RedBell from "assets/red.mp3";
+import LeftSay from "assets/keep-left.mp3";
+import RightSay from "assets/keep-right.mp3";
+import useSound from "use-sound";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
@@ -24,6 +29,11 @@ const Home: NextPage = () => {
   const { formattedDate } = useDate();
   const [riskLevel, setRiskLevel] = useState<0 | 1 | 2>(0);
 
+  const [playPassBell] = useSound(PassBell);
+  const [playRedBell] = useSound(RedBell);
+  const [playLeftSay] = useSound(LeftSay);
+  const [playRightSay] = useSound(RightSay);
+
   useEffect(() => {
     if (read) {
       return;
@@ -37,6 +47,7 @@ const Home: NextPage = () => {
         navigator.geolocation.getCurrentPosition(async (position) => {
           const { latitude, longitude } = position.coords;
           const latlng = `${latitude},${longitude}`;
+          console.log(latlng);
           const {
             data: { results },
           } = await axios.get(
@@ -65,7 +76,20 @@ const Home: NextPage = () => {
 
       const { risk_level, danger_left, danger_right } = parsedData;
       setRiskLevel(risk_level);
+      if (riskLevel === 2) {
+        playRedBell();
+        playRedBell();
+      }
       setPassing({ left: danger_left, right: danger_right });
+      if (danger_left) {
+        playPassBell();
+        playRightSay();
+      }
+
+      if (danger_right) {
+        playPassBell();
+        playLeftSay();
+      }
     };
 
     return webSocket.close();
