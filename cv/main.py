@@ -8,6 +8,7 @@ from flask_sock import Sock
 import cv2
 import time
 import json
+from playsound import playsound
 
 # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
 pipeline = depthai.Pipeline()
@@ -183,6 +184,16 @@ def websocket(ws):
         if danger_right or danger_left:
             risk_level = 2
         ws.send(json.dumps({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right}))
+
+        # Play sounds
+        if risk_level == 2:
+            playsound("../frontend/public/red.mp3")
+            playsound("../frontend/public/red.mp3")
+        if danger_right and not danger_left:
+            playsound("../frontend/public/keep-left.mp3")
+        elif danger_left and not danger_right:
+            playsound("../frontend/public/keep-right.mp3")
+
         danger_left = False
         danger_right = False
         time.sleep(1)
