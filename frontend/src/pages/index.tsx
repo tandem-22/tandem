@@ -2,22 +2,12 @@ import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Status } from "@/components/Status";
-<<<<<<< HEAD
 import { Blindspot } from "@/components/Blindspot";
-=======
-import { IncidentReport } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
-import { PassingIndicator } from "@/components/PassingIndicator";
-
-import PassBell from "assets/chime.mp3";
-import RedBell from "assets/red.mp3";
-import LeftSay from "assets/keep-left.mp3";
-import RightSay from "assets/keep-right.mp3";
-import useSound from "use-sound";
->>>>>>> 69135e3d9999a44427b54474723d5626a8d7b1bf
 import { useRouter } from "next/router";
+import useSound from "use-sound";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
@@ -35,11 +25,10 @@ const Home: NextPage = () => {
   const { formattedDate } = useDate();
   const [riskLevel, setRiskLevel] = useState<0 | 1 | 2>(0);
 
-  const [playPassBell] = useSound(PassBell);
-  const [playRedBell] = useSound(RedBell);
-  const [playLeftSay] = useSound(LeftSay);
-  const [playRightSay] = useSound(RightSay);
-
+  const [playPassBell] = useSound("/chime.mp3");
+  const [playRedBell] = useSound("/red.mp3");
+  const [playLeftSay] = useSound("/keep-left.mp3");
+  const [playRightSay] = useSound("/keep-right.mp3");
   useEffect(() => {
     if (read) {
       return;
