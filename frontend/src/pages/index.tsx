@@ -65,13 +65,11 @@ const Home: NextPage = () => {
         } = JSON.parse(data);
 
         const { risk_level, danger_left, danger_right } = parsedData;
-        setRiskLevel(risk_level);
-
-        if (riskLevel === 2) {
+        if (risk_level === 2) {
           playRedBell();
           playRedBell();
         }
-        setPassing({ left: danger_left, right: danger_right });
+
         if (danger_left) {
           playPassBell();
           playRightSay();
@@ -81,11 +79,13 @@ const Home: NextPage = () => {
           playPassBell();
           playLeftSay();
         }
+
+        setRiskLevel(risk_level);
         setPassing({ left: danger_left, right: danger_right });
       };
       setRead(true);
     }
-  }, [read]);
+  }, [read, playPassBell, playRedBell, playLeftSay, playRightSay]);
   const router = useRouter();
 
   return (
