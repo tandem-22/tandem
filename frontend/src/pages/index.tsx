@@ -5,7 +5,7 @@ import { Status } from "@/components/Status";
 import { Warning } from "@/components/Warning";
 import { useState } from "react";
 
-const VIDEO_FEED_URL = "http://localhost:3001";
+const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
