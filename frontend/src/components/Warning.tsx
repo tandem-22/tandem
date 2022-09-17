@@ -1,11 +1,24 @@
-import { Box, Flex, Heading, Icon, IconButton, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  IconButton,
+  Text,
+} from "@chakra-ui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 
 interface Props {
-  setPassing: (prev: "left" | "right" | null) => void;
+  premise: (prev: "left" | "right" | null) => void;
+  coords?: [number, number];
 }
 
-export const Warning = ({ setPassing }: Props) => {
+export const IncidentReport = ({ premise, coords }: Props) => {
+  const [type, setType] = useState<
+    "NEAR_MISS" | "ACCIDENT" | "OTHER" | undefined
+  >(undefined);
   return (
     <Flex
       bg="red.400"
@@ -30,9 +43,12 @@ export const Warning = ({ setPassing }: Props) => {
         aria-label="Close"
         onClick={() => setPassing(null)}
       />
-      <Box color="white">
-        <Heading fontSize="6xl">Watch out!</Heading>
-        <Text fontSize="2xl">{"You're being passed by a vehicle."}</Text>
+      <Box color="white" width="70%">
+        <Heading fontSize="4xl">Watch out!</Heading>
+        <Box>
+          <Button onClick={() => {}}>Near Miss</Button>
+          <Button>Accident</Button>]<Button>Other</Button>
+        </Box>
       </Box>
     </Flex>
   );
