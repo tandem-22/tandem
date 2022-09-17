@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
 import { useRouter } from "next/router";
-import useSound from "use-sound";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
@@ -25,10 +24,6 @@ const Home: NextPage = () => {
   const { formattedDate } = useDate();
   const [riskLevel, setRiskLevel] = useState<0 | 1 | 2>(0);
 
-  const [playPassBell] = useSound("/chime.mp3");
-  const [playRedBell] = useSound("/red.mp3");
-  const [playLeftSay] = useSound("/keep-left.mp3");
-  const [playRightSay] = useSound("/keep-right.mp3");
   useEffect(() => {
     if (read) {
       return;
@@ -65,27 +60,12 @@ const Home: NextPage = () => {
         } = JSON.parse(data);
 
         const { risk_level, danger_left, danger_right } = parsedData;
-        if (risk_level === 2) {
-          playRedBell();
-          playRedBell();
-        }
-
-        if (danger_left) {
-          playPassBell();
-          playRightSay();
-        }
-
-        if (danger_right) {
-          playPassBell();
-          playLeftSay();
-        }
-
         setRiskLevel(risk_level);
         setPassing({ left: danger_left, right: danger_right });
       };
       setRead(true);
     }
-  }, [read, playPassBell, playRedBell, playLeftSay, playRightSay]);
+  }, [read]);
   const router = useRouter();
 
   return (
