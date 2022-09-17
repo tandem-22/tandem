@@ -22,7 +22,7 @@ export const Warning = ({ setShowWarning }: Props) => {
         pos="absolute"
         right="4"
         top="4"
-        size="sm"
+        size="lg"
         bg="red.500"
         _active={{}}
         _hover={{}}
@@ -31,8 +31,8 @@ export const Warning = ({ setShowWarning }: Props) => {
         onClick={() => setShowWarning(false)}
       />
       <Box color="white">
-        <Heading fontSize="4xl">Watch out!</Heading>
-        <Text fontSize="lg">{"You're in danger."}</Text>
+        <Heading fontSize="6xl">Watch out!</Heading>
+        <Text fontSize="2xl">{"You're being passed by a vehicle."}</Text>
       </Box>
     </Flex>
   );
