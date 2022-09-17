@@ -2,11 +2,10 @@ import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Status } from "@/components/Status";
-import { Warning } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
-import { PassingIndicator } from "@/components/PassingIndicator";
+import { Blindspot } from "@/components/Blindspot";
 import { useRouter } from "next/router";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
@@ -140,10 +139,16 @@ const Home: NextPage = () => {
           )}
         </Flex>
         {showHUD && (
-          <Status pos="fixed" bottom="4" left="8" right="8" riskLevel={0} />
+          <Status
+            pos="fixed"
+            bottom="4"
+            left="8"
+            right="8"
+            riskLevel={riskLevel}
+          />
         )}
       </Box>
-      <PassingIndicator passing={passing} />
+      <Blindspot passing={passing} />
     </>
   );
 };
