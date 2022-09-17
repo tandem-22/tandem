@@ -8,9 +8,8 @@ datasource db {
 }
 
 model Locations {
-  id          Int @id @default(autoincrement())
-  long        Float
-  lat         Float
-  description String
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lat         Decimal
+  long        Decimal
   type        String
 }
