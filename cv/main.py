@@ -8,19 +8,14 @@ from flask import Response
 from flask import Flask
 from flask import render_template
 import cv2
-import threading
-import argparse
-import datetime
-import imutils
-import time
 
 # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
 pipeline = depthai.Pipeline()
 
 # First, we want the Color camera as the output
 cam_rgb = pipeline.createColorCamera()
-cam_rgb.setPreviewSize(336, 192)  # 300x300 will be the preview frame size, available as 'preview' output of the node
-cam_rgb.setVideoSize(672, 384)
+cam_rgb.setPreviewSize(672, 384)  # 300x300 will be the preview frame size, available as 'preview' output of the node
+# cam_rgb.setVideoSize(672, 384)
 cam_rgb.setInterleaved(False)
 
 # Next, we want a neural network that will produce the detections
@@ -31,14 +26,18 @@ detection_nn.setBlobPath(blobconverter.from_zoo(name='vehicle-detection-adas-000
 # Next, we filter out the detections that are below a confidence threshold. Confidence can be anywhere between <0..1>
 detection_nn.setConfidenceThreshold(0.7)
 # Next, we link the camera 'preview' output to the neural network detection input, so that it can produce detections
-cam_rgb.video.link(detection_nn.input)
+cam_rgb.preview.link(detection_nn.input)
+
+resize = pipeline.createImageManip()
+resize.setResize(336, 192)
+cam_rgb.preview.link(resize.inputImage)
 
 # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
 xout_rgb = pipeline.createXLinkOut()
 # For the rgb camera output, we want the XLink stream to be named "rgb"
 xout_rgb.setStreamName("rgb")
 # Linking camera preview to XLink input, so that the frames will be sent to host
-cam_rgb.preview.link(xout_rgb.input)
+resize.out.link(xout_rgb.input)
 
 # The same XLinkOut mechanism will be used to receive nn results
 xout_nn = pipeline.createXLinkOut()
@@ -76,6 +75,7 @@ def generate():
             if in_rgb is not None:
                 # If the packet from RGB camera is present, we're retrieving the frame in OpenCV format using getCvFrame
                 frame = in_rgb.getCvFrame()
+                # frame = imutils.resize(frame, width=336)
 
             if in_nn is not None:
                 # when data from nn is received, we take the detections array that contains mobilenet-ssd results
