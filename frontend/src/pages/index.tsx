@@ -12,8 +12,7 @@ const Home: NextPage = () => {
       </Head>
       <Box w="100%" h="100vh" pos="fixed" zIndex={-10}>
         <Image
-          src="/1.jpg"
-          // src="http://localhost:3001/video_feed"
+          src="http://localhost:3001/video_feed"
           objectFit="cover"
           alt="Video feed"
         />
