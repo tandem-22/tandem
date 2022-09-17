@@ -42,7 +42,6 @@ const Home: NextPage = () => {
         navigator.geolocation.getCurrentPosition(async (position) => {
           const { latitude, longitude } = position.coords;
           const latlng = `${latitude},${longitude}`;
-          console.log(latlng);
           const {
             data: { results },
           } = await axios.get(
