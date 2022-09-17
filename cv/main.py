@@ -1,21 +1,46 @@
 # first, import all necessary modules
 import blobconverter
-import cv2
 import depthai
 import numpy as np
-from imutils.video import VideoStream
 from flask import Response
 from flask import Flask
-from flask import render_template
+from flask_sock import Sock
 import cv2
+import time
 
 # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
 pipeline = depthai.Pipeline()
 
+# Two mono cameras
+# mono_right = pipeline.createMonoCamera()
+# mono_left = pipeline.createMonoCamera()
+# stereo = pipeline.createStereoDepth()
+# spacial_location_calc = pipeline.createSpatialLocationCalculator()
+#
+# mono_left.setResolution(depthai.MonoCameraProperties.SensorResolution.THE_400_P)
+# mono_left.setBoardSocket(depthai.CameraBoardSocket.LEFT)
+# mono_right.setResolution(depthai.MonoCameraProperties.SensorResolution.THE_400_P)
+# mono_right.setBoardSocket(depthai.CameraBoardSocket.RIGHT)
+#
+# stereo.setDefaultProfilePreset(depthai.node.StereoDepth.PresetMode.HIGH_DENSITY)
+# stereo.setDepthAlign(depthai.CameraBoardSocket.RGB)
+# stereo.setOutputSize(mono_left.getResolutionWidth(), mono_left.getResolutionHeight())
+# mono_left.out.link(stereo.left)
+# mono_right.out.link(stereo.right)
+#
+# topLeft = depthai.Point2f(0.4, 0.4)
+# bottomRight = depthai.Point2f(0.6, 0.6)
+#
+# stereo.depth.link(spacial_location_calc.inputDepth)
+#
+# config.depthThresholds.lowerThreshold = 100
+# config.depthThresholds.upperThreshold = 10000
+# config.roi = depthai.Rect(topLeft, bottomRight)
+# spacial_location_calc.initialConfig.addROI(config)
+
 # First, we want the Color camera as the output
 cam_rgb = pipeline.createColorCamera()
-cam_rgb.setPreviewSize(672, 384)  # 300x300 will be the preview frame size, available as 'preview' output of the node
-# cam_rgb.setVideoSize(672, 384)
+cam_rgb.setPreviewSize(672, 384)
 cam_rgb.setInterleaved(False)
 
 # Next, we want a neural network that will produce the detections
@@ -44,8 +69,17 @@ xout_nn = pipeline.createXLinkOut()
 xout_nn.setStreamName("nn")
 detection_nn.out.link(xout_nn.input)
 
+# xout_sp = pipeline.createXLinkOut()
+# xout_sp.setStreamName("sp")
+# spacial_location_calc.out.link(xout_sp.input)
+
+
+# The risk level determined by the model
+risk_level = 0
+
 
 def generate():
+    global risk_level
     # Pipeline is now finished, and we need to find an available device to run our pipeline
     # we are using context manager here that will dispose the device after we stop using it
     with depthai.Device(pipeline, usb2Mode=True) as device:
@@ -54,6 +88,7 @@ def generate():
         # To consume the device results, we get two output queues from the device, with stream names we assigned earlier
         q_rgb = device.getOutputQueue("rgb")
         q_nn = device.getOutputQueue("nn")
+        # q_sp = device.getOutputQueue("sp")
 
         # Here, some of the default values are defined. Frame will be an image from "rgb" stream, detections will contain nn results
         frame = None
@@ -71,6 +106,7 @@ def generate():
             # we try to fetch the data from nn/rgb queues. tryGet will return either the data packet or None if there isn't any
             in_rgb = q_rgb.tryGet()
             in_nn = q_nn.tryGet()
+            # in_sp = q_sp.tryGet()
 
             if in_rgb is not None:
                 # If the packet from RGB camera is present, we're retrieving the frame in OpenCV format using getCvFrame
@@ -81,15 +117,29 @@ def generate():
                 # when data from nn is received, we take the detections array that contains mobilenet-ssd results
                 detections = in_nn.detections
 
+            # if in_sp is not None:
+            #     distances = in_sp.getSpatialLocations()
+            #     print(f"Length of distances: {len(distances)}")
+            #     print(f"Closest distance: {distances[0].depthMin} mm")
+            danger_score = 0
             if frame is not None:
-                # print(f"{len(detections)} detections")
                 for detection in detections:
+                    # calculate size of bounding box from 0 to 1
+                    area = (detection.xmax - detection.xmin) * (detection.ymax - detection.ymin)
+
+                    # check if bbox is on left side, right side, or middle
+                    side = 1  # middle
+                    if detection.xmax < 0.4:
+                        side = 0  # left
+                    elif detection.xmin < 0.6:
+                        side = 2  # right
+
+                    danger_score += area * (1.5 if side != 1 else 1)
+
                     # for each bounding box, we first normalize it to match the frame size
                     bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
                     # and then draw a rectangle on the frame to show the actual result
                     cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2)
-                # After all the drawing is finished, we show the frame on the screen
-                # cv2.imshow("preview", frame)
 
                 (flag, encodedImage) = cv2.imencode(".jpg", frame)
 
@@ -98,13 +148,31 @@ def generate():
 
                 yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
                        bytearray(encodedImage) + b'\r\n')
-            # at any time, you can press "q" and exit the main loop, therefore exiting the program itself
-            # if cv2.waitKey(1) == ord('q'):
-            #     break
+
+            # print(f"Danger score: {danger_score}")
+            if danger_score > 0.06:
+                risk_level = 2
+            elif danger_score > 0.02:
+                risk_level = 1
+            else:
+                risk_level = 0
 
 
 # initialize a flask object
 app = Flask(__name__)
+sock = Sock(app)
+
+
+@sock.route("/ws")
+def websocket(ws):
+    global risk_level
+    last_risk_level = -1
+    while risk_level != last_risk_level:
+        last_risk_level = risk_level
+        ws.send({"risk_level": risk_level})
+        time.sleep(2)
+        # ws.send({"data": "test"})
+        # time.sleep(10)
 
 
 @app.route("/video_feed")
@@ -115,5 +183,5 @@ def video_feed():
                     mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
-app.run(host="localhost", port=3001, debug=True,
+app.run(host="localhost", port=3001, debug=False,
         threaded=True, use_reloader=False)
