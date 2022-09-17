@@ -19,8 +19,8 @@ pipeline = depthai.Pipeline()
 
 # First, we want the Color camera as the output
 cam_rgb = pipeline.createColorCamera()
-cam_rgb.setPreviewSize(672, 384)  # 300x300 will be the preview frame size, available as 'preview' output of the node
-# cam_rgb.setVideoSize(672, 384)
+cam_rgb.setPreviewSize(672 / 2, 384 / 2)  # 300x300 will be the preview frame size, available as 'preview' output of the node
+cam_rgb.setVideoSize(672, 384)
 cam_rgb.setInterleaved(False)
 
 # Next, we want a neural network that will produce the detections
@@ -31,7 +31,7 @@ detection_nn.setBlobPath(blobconverter.from_zoo(name='vehicle-detection-adas-000
 # Next, we filter out the detections that are below a confidence threshold. Confidence can be anywhere between <0..1>
 detection_nn.setConfidenceThreshold(0.7)
 # Next, we link the camera 'preview' output to the neural network detection input, so that it can produce detections
-cam_rgb.preview.link(detection_nn.input)
+cam_rgb.video.link(detection_nn.input)
 
 # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
 xout_rgb = pipeline.createXLinkOut()
