@@ -182,7 +182,7 @@ def websocket(ws):
         # last_risk_level = risk_level
         if danger_right or danger_left:
             risk_level = 2
-        ws.send(json.dumps({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right}))
+        ws.send(json.dumps({"risk_level": risk_level, "danger_left": danger_right, "danger_right": danger_left}))
 
         danger_left = False
         danger_right = False
