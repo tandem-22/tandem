@@ -56,6 +56,7 @@ cam_rgb.preview.link(detection_nn.input)
 
 resize = pipeline.createImageManip()
 resize.initialConfig.setResize(437, 250)
+resize.initialConfig.setHorizontalFlip(True)
 cam_rgb.preview.link(resize.inputImage)
 
 # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
@@ -135,12 +136,12 @@ def generate():
                     if detection.xmax < 0.4:
                         # print(f"car left {area}")
                         side = 0  # left
-                        if area > 0.1:
+                        if area > 0.06:
                             danger_left = True
                     elif detection.xmin > 0.6:
                         # print(f"car right {area}")
                         side = 2  # right
-                        if area > 0.1:
+                        if area > 0.06:
                             danger_right = True
 
                     danger_score += area * (1.5 if side != 1 else 1)
