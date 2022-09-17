@@ -76,8 +76,6 @@ const Home: NextPage = () => {
         <title>SentinelBike</title>
       </Head>
       <Box
-        p="8"
-        px="12"
         color="gray.200"
         bg={`url(${VIDEO_FEED_URL})`}
         bgPosition="center"
@@ -85,58 +83,65 @@ const Home: NextPage = () => {
         h="100vh"
       >
         {showHUD && (
-          <Flex justifyContent="space-between">
-            <Box>
-              <Box
-                fontSize="lg"
-                bg="#202226"
-                py="4"
-                pl="6"
-                pr="14"
-                rounded="xl"
-              >
-                <Box color="white">
-                  <Heading fontSize="xl">{city}</Heading>
-                  <Text fontSize="lg">{premise}</Text>
-                </Box>
-                <Box mt="1">
-                  <Text>23.9 °C, Cloudy</Text>
-                  <Text>{formattedDate}</Text>
-                </Box>
-              </Box>
+          <Box
+            fontSize="lg"
+            bg="#202226"
+            py="4"
+            pl="6"
+            pr="14"
+            rounded="xl"
+            w="fit-content"
+            pos="fixed"
+            top="4"
+            left="8"
+          >
+            <Box color="white">
+              <Heading fontSize="xl">{city}</Heading>
+              <Text fontSize="lg">{premise}</Text>
             </Box>
-            <VStack>
-              <Status riskLevel={riskLevel} />
-            </VStack>
-          </Flex>
+            <Box mt="1">
+              <Text>{formattedDate}</Text>
+            </Box>
+          </Box>
         )}
-        {showHUD && (
-          <VStack pos="absolute" bottom="6" right="8" alignItems="right">
-            <Button colorScheme="orange" rounded="full" p="5">
-              Report Incident
-            </Button>
-            <Button
-              colorScheme="red"
-              onClick={() => router.push("/done")}
-              rounded="full"
-              p="5"
-            >
-              End Ride
-            </Button>
-          </VStack>
-        )}
-        <Button
-          pos="absolute"
-          bottom="6"
-          left="8"
-          colorScheme="gray"
-          color="black"
-          onClick={() => setShowHUD(!showHUD)}
-          rounded="full"
-          p="5"
+
+        <Flex
+          direction="column"
+          w="40"
+          alignItems="right"
+          right="8"
+          top="4"
+          gap="3"
+          pos="fixed"
         >
-          {showHUD ? "Hide HUD" : "Show HUD"}
-        </Button>
+          <Button
+            colorScheme="gray"
+            color="black"
+            onClick={() => setShowHUD(!showHUD)}
+            rounded="full"
+            p="5"
+          >
+            {showHUD ? "Hide HUD" : "Show HUD"}
+          </Button>
+          {showHUD && (
+            <>
+              <Button colorScheme="orange" rounded="full" p="5">
+                Report Incident
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => router.push("/done")}
+                rounded="full"
+                p="5"
+              >
+                End Ride
+              </Button>
+            </>
+          )}
+        </Flex>
+        {showHUD && (
+          <Status pos="fixed" bottom="4" left="8" right="8" riskLevel={0} />
+        )}
       </Box>
       <PassingIndicator passing={passing} />
     </>

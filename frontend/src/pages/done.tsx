@@ -21,7 +21,7 @@ const Done = () => {
       <Button
         mt="2"
         rounded="full"
-        colorScheme="teal"
+        colorScheme="green"
         onClick={() => router.push("/")}
       >
         Ride again
