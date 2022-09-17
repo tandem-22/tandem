@@ -53,7 +53,8 @@ const Home: NextPage = () => {
       }
       setRead(true);
     }
-
+  }, [read]);
+  useEffect(() => {
     const webSocket = new WebSocket("ws://localhost:3001/ws");
     webSocket.onmessage = ({ data }: { data: string }) => {
       const parsedData: {
@@ -66,7 +67,9 @@ const Home: NextPage = () => {
       setRiskLevel(risk_level);
       setPassing({ left: danger_left, right: danger_right });
     };
-  }, [read]);
+
+    return webSocket.close();
+  }, []);
 
   return (
     <>
