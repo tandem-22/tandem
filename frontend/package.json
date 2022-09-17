@@ -19,7 +19,8 @@
     "framer-motion": "^7.3.5",
     "next": "12.3.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "use-sound": "^4.0.1"
   },
   "devDependencies": {
     "@types/dotenv-safe": "^8.1.2",
