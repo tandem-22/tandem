@@ -76,10 +76,12 @@ detection_nn.out.link(xout_nn.input)
 
 # The risk level determined by the model
 risk_level = 0
+danger_left = False
+danger_right = True
 
 
 def generate():
-    global risk_level
+    global risk_level, danger_left, danger_right
     # Pipeline is now finished, and we need to find an available device to run our pipeline
     # we are using context manager here that will dispose the device after we stop using it
     with depthai.Device(pipeline, usb2Mode=True) as device:
@@ -131,8 +133,12 @@ def generate():
                     side = 1  # middle
                     if detection.xmax < 0.4:
                         side = 0  # left
+                        if area > 0.1:
+                            danger_left = True
                     elif detection.xmin < 0.6:
                         side = 2  # right
+                        if area > 0.1:
+                            danger_right = True
 
                     danger_score += area * (1.5 if side != 1 else 1)
 
@@ -165,14 +171,14 @@ sock = Sock(app)
 
 @sock.route("/ws")
 def websocket(ws):
-    global risk_level
+    global risk_level, danger_left, danger_right
     last_risk_level = -1
-    while risk_level != last_risk_level:
+    while risk_level != last_risk_level or danger_left or danger_right:
         last_risk_level = risk_level
-        ws.send({"risk_level": risk_level})
+        danger_left = False
+        danger_right = False
+        ws.send({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right})
         time.sleep(2)
-        # ws.send({"data": "test"})
-        # time.sleep(10)
 
 
 @app.route("/video_feed")
