@@ -7,6 +7,7 @@ from flask import Flask
 from flask_sock import Sock
 import cv2
 import time
+import json
 
 # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
 pipeline = depthai.Pipeline()
@@ -132,10 +133,12 @@ def generate():
                     # check if bbox is on left side, right side, or middle
                     side = 1  # middle
                     if detection.xmax < 0.4:
+                        print(f"car left {area}")
                         side = 0  # left
                         if area > 0.1:
                             danger_left = True
-                    elif detection.xmin < 0.6:
+                    elif detection.xmin > 0.6:
+                        print(f"car right {area}")
                         side = 2  # right
                         if area > 0.1:
                             danger_right = True
@@ -156,7 +159,7 @@ def generate():
                        bytearray(encodedImage) + b'\r\n')
 
             # print(f"Danger score: {danger_score}")
-            if danger_score > 0.06:
+            if danger_score > 0.08:
                 risk_level = 2
             elif danger_score > 0.02:
                 risk_level = 1
@@ -173,12 +176,15 @@ sock = Sock(app)
 def websocket(ws):
     global risk_level, danger_left, danger_right
     last_risk_level = -1
-    while risk_level != last_risk_level or danger_left or danger_right:
-        last_risk_level = risk_level
+    # while risk_level != last_risk_level or danger_left or danger_right:
+    while True:
+        # last_risk_level = risk_level
+        if danger_right or danger_left:
+            risk_level = 2
+        ws.send(json.dumps({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right}))
         danger_left = False
         danger_right = False
-        ws.send({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right})
-        time.sleep(2)
+        time.sleep(1)
 
 
 @app.route("/video_feed")
