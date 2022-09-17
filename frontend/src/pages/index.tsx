@@ -7,14 +7,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
 import { PassingIndicator } from "@/components/PassingIndicator";
+import { useRouter } from "next/router";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
 const Home: NextPage = () => {
-  const [city, setCity] = useState("Calibrating...");
-  const [premise, setPremise] = useState("Finding location...");
+  const [city, setCity] = useState("Waterloo, ON, Canada");
+  const [premise, setPremise] = useState("Engineering 5");
   const [read, setRead] = useState(false);
   const [showHUD, setShowHUD] = useState(true);
   const [passing, setPassing] = useState<{ left: boolean; right: boolean }>({
@@ -70,6 +71,8 @@ const Home: NextPage = () => {
     }
   }, [read]);
 
+  const router = useRouter();
+
   return (
     <>
       <Head>
@@ -112,8 +115,17 @@ const Home: NextPage = () => {
         )}
         {showHUD && (
           <VStack pos="absolute" bottom="6" right="8" alignItems="right">
-            <Button colorScheme="orange">Report Incident</Button>
-            <Button colorScheme="red">End Ride</Button>
+            <Button colorScheme="orange" rounded="full" p="5">
+              Report Incident
+            </Button>
+            <Button
+              colorScheme="red"
+              onClick={() => router.push("/done")}
+              rounded="full"
+              p="5"
+            >
+              End Ride
+            </Button>
           </VStack>
         )}
         <Button
@@ -123,6 +135,8 @@ const Home: NextPage = () => {
           colorScheme="gray"
           color="black"
           onClick={() => setShowHUD(!showHUD)}
+          rounded="full"
+          p="5"
         >
           {showHUD ? "Hide HUD" : "Show HUD"}
         </Button>
