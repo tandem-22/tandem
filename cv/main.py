@@ -133,15 +133,15 @@ def generate():
 
                     # check if bbox is on left side, right side, or middle
                     side = 1  # middle
-                    if detection.xmax < 0.4:
+                    if detection.xmax < 0.5:
                         # print(f"car left {area}")
                         side = 0  # left
-                        if area > 0.08:
+                        if area > 0.05:
                             danger_left = True
-                    elif detection.xmin > 0.6:
+                    elif detection.xmin > 0.5:
                         # print(f"car right {area}")
                         side = 2  # right
-                        if area > 0.08:
+                        if area > 0.05:
                             danger_right = True
 
                     danger_score += area * (1.5 if side != 1 else 1)
