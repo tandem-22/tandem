@@ -6,7 +6,6 @@ import { Warning } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
-import { Controls } from "@/components/Controls";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
@@ -89,14 +88,14 @@ const Home: NextPage = () => {
             </Box>
             <VStack>
               <Status state="safe" onClick={() => setShowWarning(true)} />
-              <Controls />
             </VStack>
           </Flex>
         )}
         {showHUD && (
-          <Button pos="absolute" bottom="6" right="8" colorScheme="red">
-            End Ride
-          </Button>
+          <VStack pos="absolute" bottom="6" right="8" alignItems="right">
+            <Button colorScheme="orange">Report Incident</Button>
+            <Button colorScheme="red">End Ride</Button>
+          </VStack>
         )}
         <Button
           pos="absolute"
