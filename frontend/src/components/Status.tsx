@@ -1,4 +1,4 @@
-import { Flex, Icon } from "@chakra-ui/react";
+import { Flex, FlexProps, Icon } from "@chakra-ui/react";
 import {
   ShieldCheckIcon,
   ShieldExclamationIcon,
@@ -19,11 +19,11 @@ const config = {
   },
 } as const;
 
-interface Props {
+interface Props extends FlexProps {
   state: keyof typeof config;
 }
 
-export const Status = ({ state }: Props) => {
+export const Status = ({ state, ...rest }: Props) => {
   const { bg, icon } = config[state];
 
   return (
@@ -33,6 +33,7 @@ export const Status = ({ state }: Props) => {
       justifyContent="center"
       alignItems="center"
       rounded="md"
+      {...rest}
     >
       <Icon as={icon} boxSize="8" strokeWidth="2" />
     </Flex>
