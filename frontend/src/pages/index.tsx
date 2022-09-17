@@ -4,6 +4,7 @@ import Head from "next/head";
 import { Status } from "@/components/Status";
 
 const VIDEO_FEED_URL = "http://localhost:3001";
+// const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
 const Home: NextPage = () => {
@@ -15,19 +16,23 @@ const Home: NextPage = () => {
       <Box
         p="8"
         px="12"
-        color="white"
+        color="gray.200"
         bg={`url(${VIDEO_FEED_URL})`}
         bgPosition="center"
         bgSize="cover"
         h="100vh"
       >
         <Flex justifyContent="space-between">
-          <Box fontSize="lg">
-            <Heading fontSize="3xl">Waterloo</Heading>
-            <Heading fontSize="2xl">Heading NW</Heading>
-            <Text>23.9 °C, Cloudy</Text>
-            <Text>7:25 AM, 2022/09/24</Text>
-            <Text>12.94 km/h</Text>
+          <Box fontSize="lg" bg="#202226" py="4" pl="6" pr="14" rounded="xl">
+            <Box color="white">
+              <Heading fontSize="2xl">Waterloo</Heading>
+              <Heading fontSize="xl">Heading NW</Heading>
+            </Box>
+            <Box mt="1">
+              <Text>23.9 °C, Cloudy</Text>
+              <Text>7:25 AM, 2022/09/24</Text>
+              <Text>12.94 km/h</Text>
+            </Box>
           </Box>
           <Status state="warning" />
         </Flex>
