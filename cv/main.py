@@ -7,6 +7,7 @@ from flask import Flask
 from flask_sock import Sock
 import cv2
 import time
+import json
 
 # Pipeline tells DepthAI what operations to perform when running - you define all of the resources used and flows here
 pipeline = depthai.Pipeline()
@@ -55,6 +56,7 @@ cam_rgb.preview.link(detection_nn.input)
 
 resize = pipeline.createImageManip()
 resize.initialConfig.setResize(437, 250)
+resize.initialConfig.setHorizontalFlip(True)
 cam_rgb.preview.link(resize.inputImage)
 
 # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
@@ -131,19 +133,21 @@ def generate():
 
                     # check if bbox is on left side, right side, or middle
                     side = 1  # middle
-                    if detection.xmax < 0.4:
+                    if detection.xmax < 0.5:
+                        # print(f"car left {area}")
                         side = 0  # left
-                        if area > 0.1:
+                        if area > 0.05:
                             danger_left = True
-                    elif detection.xmin < 0.6:
+                    elif detection.xmin > 0.5:
+                        # print(f"car right {area}")
                         side = 2  # right
-                        if area > 0.1:
+                        if area > 0.05:
                             danger_right = True
 
                     danger_score += area * (1.5 if side != 1 else 1)
 
                     # for each bounding box, we first normalize it to match the frame size
-                    bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
+                    bbox = frameNorm(frame, (1 - detection.xmin, detection.ymin, 1 - detection.xmax, detection.ymax))
                     # and then draw a rectangle on the frame to show the actual result
                     cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2)
 
@@ -156,7 +160,7 @@ def generate():
                        bytearray(encodedImage) + b'\r\n')
 
             # print(f"Danger score: {danger_score}")
-            if danger_score > 0.06:
+            if danger_score > 0.08:
                 risk_level = 2
             elif danger_score > 0.02:
                 risk_level = 1
@@ -173,12 +177,15 @@ sock = Sock(app)
 def websocket(ws):
     global risk_level, danger_left, danger_right
     last_risk_level = -1
-    while risk_level != last_risk_level or danger_left or danger_right:
-        last_risk_level = risk_level
+    # while risk_level != last_risk_level or danger_left or danger_right:
+    while True:
+        # last_risk_level = risk_level
+        if danger_right or danger_left:
+            risk_level = 2
+        ws.send(json.dumps({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right}))
         danger_left = False
         danger_right = False
-        ws.send({"risk_level": risk_level, "danger_left": danger_left, "danger_right": danger_right})
-        time.sleep(2)
+        time.sleep(1)
 
 
 @app.route("/video_feed")

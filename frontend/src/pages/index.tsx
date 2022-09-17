@@ -7,19 +7,21 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
 import { PassingIndicator } from "@/components/PassingIndicator";
+
 import PassBell from "assets/chime.mp3";
 import RedBell from "assets/red.mp3";
 import LeftSay from "assets/keep-left.mp3";
 import RightSay from "assets/keep-right.mp3";
 import useSound from "use-sound";
+import { useRouter } from "next/router";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
 const Home: NextPage = () => {
-  const [city, setCity] = useState("Calibrating...");
-  const [premise, setPremise] = useState("Finding location...");
+  const [city, setCity] = useState("Waterloo, ON, Canada");
+  const [premise, setPremise] = useState("Engineering 5");
   const [read, setRead] = useState(false);
   const [showHUD, setShowHUD] = useState(true);
   const [passing, setPassing] = useState<{ left: boolean; right: boolean }>({
@@ -62,47 +64,44 @@ const Home: NextPage = () => {
           });
         });
       }
+      const webSocket = new WebSocket("ws://localhost:3001/ws");
+      webSocket.onmessage = ({ data }: { data: string }) => {
+        const parsedData: {
+          risk_level: 0 | 1 | 2;
+          danger_left: boolean;
+          danger_right: boolean;
+        } = JSON.parse(data);
+
+        const { risk_level, danger_left, danger_right } = parsedData;
+        setRiskLevel(risk_level);
+
+        if (riskLevel === 2) {
+          playRedBell();
+          playRedBell();
+        }
+        setPassing({ left: danger_left, right: danger_right });
+        if (danger_left) {
+          playPassBell();
+          playRightSay();
+        }
+
+        if (danger_right) {
+          playPassBell();
+          playLeftSay();
+        }
+        setPassing({ left: danger_left, right: danger_right });
+      };
       setRead(true);
     }
   }, [read]);
-  useEffect(() => {
-    const webSocket = new WebSocket("ws://localhost:3001/ws");
-    webSocket.onmessage = ({ data }: { data: string }) => {
-      const parsedData: {
-        risk_level: 0 | 1 | 2;
-        danger_left: boolean;
-        danger_right: boolean;
-      } = JSON.parse(data);
-
-      const { risk_level, danger_left, danger_right } = parsedData;
-      setRiskLevel(risk_level);
-      if (riskLevel === 2) {
-        playRedBell();
-        playRedBell();
-      }
-      setPassing({ left: danger_left, right: danger_right });
-      if (danger_left) {
-        playPassBell();
-        playRightSay();
-      }
-
-      if (danger_right) {
-        playPassBell();
-        playLeftSay();
-      }
-    };
-
-    return webSocket.close();
-  }, []);
+  const router = useRouter();
 
   return (
     <>
       <Head>
-        <title>Create Next App</title>
+        <title>SentinelBike</title>
       </Head>
       <Box
-        p="8"
-        px="12"
         color="gray.200"
         bg={`url(${VIDEO_FEED_URL})`}
         bgPosition="center"
@@ -110,47 +109,65 @@ const Home: NextPage = () => {
         h="100vh"
       >
         {showHUD && (
-          <Flex justifyContent="space-between">
-            <Box>
-              <Box
-                fontSize="lg"
-                bg="#202226"
-                py="4"
-                pl="6"
-                pr="14"
-                rounded="xl"
-              >
-                <Box color="white">
-                  <Heading fontSize="xl">{city}</Heading>
-                  <Text fontSize="lg">{premise}</Text>
-                </Box>
-                <Box mt="1">
-                  <Text>23.9 °C, Cloudy</Text>
-                  <Text>{formattedDate}</Text>
-                </Box>
-              </Box>
+          <Box
+            fontSize="lg"
+            bg="#202226"
+            py="4"
+            pl="6"
+            pr="14"
+            rounded="xl"
+            w="fit-content"
+            pos="fixed"
+            top="4"
+            left="8"
+          >
+            <Box color="white">
+              <Heading fontSize="xl">{city}</Heading>
+              <Text fontSize="lg">{premise}</Text>
             </Box>
-            <VStack>
-              <Status riskLevel={riskLevel} />
-            </VStack>
-          </Flex>
+            <Box mt="1">
+              <Text>{formattedDate}</Text>
+            </Box>
+          </Box>
         )}
-        {showHUD && (
-          <VStack pos="absolute" bottom="6" right="8" alignItems="right">
-            <Button colorScheme="orange">Report Incident</Button>
-            <Button colorScheme="red">End Ride</Button>
-          </VStack>
-        )}
-        <Button
-          pos="absolute"
-          bottom="6"
-          left="8"
-          colorScheme="gray"
-          color="black"
-          onClick={() => setShowHUD(!showHUD)}
+
+        <Flex
+          direction="column"
+          w="40"
+          alignItems="right"
+          right="8"
+          top="4"
+          gap="3"
+          pos="fixed"
         >
-          {showHUD ? "Hide HUD" : "Show HUD"}
-        </Button>
+          <Button
+            colorScheme="gray"
+            color="black"
+            onClick={() => setShowHUD(!showHUD)}
+            rounded="full"
+            p="5"
+          >
+            {showHUD ? "Hide HUD" : "Show HUD"}
+          </Button>
+          {showHUD && (
+            <>
+              <Button colorScheme="orange" rounded="full" p="5">
+                Report Incident
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => router.push("/done")}
+                rounded="full"
+                p="5"
+              >
+                End Ride
+              </Button>
+            </>
+          )}
+        </Flex>
+        {showHUD && (
+          <Status pos="fixed" bottom="4" left="8" right="8" riskLevel={0} />
+        )}
       </Box>
       <PassingIndicator passing={passing} />
     </>
