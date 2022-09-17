@@ -136,18 +136,18 @@ def generate():
                     if detection.xmax < 0.4:
                         # print(f"car left {area}")
                         side = 0  # left
-                        if area > 0.1:
+                        if area > 0.08:
                             danger_left = True
                     elif detection.xmin > 0.6:
                         # print(f"car right {area}")
                         side = 2  # right
-                        if area > 0.1:
+                        if area > 0.08:
                             danger_right = True
 
                     danger_score += area * (1.5 if side != 1 else 1)
 
                     # for each bounding box, we first normalize it to match the frame size
-                    bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
+                    bbox = frameNorm(frame, (1 - detection.xmin, detection.ymin, 1 - detection.xmax, detection.ymax))
                     # and then draw a rectangle on the frame to show the actual result
                     cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2)
 
