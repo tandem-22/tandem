@@ -73,7 +73,6 @@ const Home: NextPage = () => {
             <Box mt="1">
               <Text>23.9 °C, Cloudy</Text>
               <Text>{formattedDate}</Text>
-              <Text>12.94 km/h</Text>
             </Box>
           </Box>
           <Status state="danger" onClick={() => setShowWarning(true)} />

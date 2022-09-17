@@ -15,12 +15,14 @@
     "@emotion/styled": "^11.10.4",
     "@heroicons/react": "^2.0.11",
     "axios": "^0.27.2",
+    "dotenv-safe": "^8.2.0",
     "framer-motion": "^7.3.5",
     "next": "12.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@types/dotenv-safe": "^8.1.2",
     "@types/node": "18.7.18",
     "@types/react": "18.0.20",
     "@types/react-dom": "18.0.6",
