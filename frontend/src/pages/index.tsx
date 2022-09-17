@@ -6,6 +6,7 @@ import { Warning } from "@/components/Warning";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDate } from "@/hooks/useDate";
+import { PassingIndicator } from "@/components/PassingIndicator";
 
 const VIDEO_FEED_URL = "http://localhost:3001/video_feed";
 // const VIDEO_FEED_URL = "1.jpg";
@@ -16,6 +17,12 @@ const Home: NextPage = () => {
   const [premise, setPremise] = useState("Finding location...");
   const [read, setRead] = useState(false);
   const [showHUD, setShowHUD] = useState(true);
+  const [passing, setPassing] = useState<{ left: boolean; right: boolean }>({
+    left: false,
+    right: false,
+  });
+  const { formattedDate } = useDate();
+  const [riskLevel, setRiskLevel] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
     if (read) {
@@ -46,10 +53,20 @@ const Home: NextPage = () => {
       }
       setRead(true);
     }
-  }, [read]);
 
-  const [showWarning, setShowWarning] = useState(false);
-  const { formattedDate } = useDate();
+    const webSocket = new WebSocket("ws://localhost:3001/ws");
+    webSocket.onmessage = ({ data }: { data: string }) => {
+      const parsedData: {
+        risk_level: 0 | 1 | 2;
+        danger_left: boolean;
+        danger_right: boolean;
+      } = JSON.parse(data);
+
+      const { risk_level, danger_left, danger_right } = parsedData;
+      setRiskLevel(risk_level);
+      setPassing({ left: danger_left, right: danger_right });
+    };
+  }, [read]);
 
   return (
     <>
@@ -87,7 +104,7 @@ const Home: NextPage = () => {
               </Box>
             </Box>
             <VStack>
-              <Status state="safe" onClick={() => setShowWarning(true)} />
+              <Status riskLevel={riskLevel} />
             </VStack>
           </Flex>
         )}
@@ -108,7 +125,7 @@ const Home: NextPage = () => {
           {showHUD ? "Hide HUD" : "Show HUD"}
         </Button>
       </Box>
-      {showWarning && <Warning setShowWarning={setShowWarning} />}
+      <PassingIndicator passing={passing} />
     </>
   );
 };

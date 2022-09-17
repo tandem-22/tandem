@@ -5,26 +5,26 @@ import {
 } from "@heroicons/react/24/outline";
 
 const config = {
-  safe: {
+  0: {
     bg: "green.400",
     icon: ShieldCheckIcon,
   },
-  warning: {
+  1: {
     bg: "orange.400",
     icon: ShieldExclamationIcon,
   },
-  danger: {
+  2: {
     bg: "red.400",
     icon: ShieldExclamationIcon,
   },
 } as const;
 
 interface Props extends FlexProps {
-  state: keyof typeof config;
+  riskLevel: keyof typeof config;
 }
 
-export const Status = ({ state, ...rest }: Props) => {
-  const { bg, icon } = config[state];
+export const Status = ({ riskLevel, ...rest }: Props) => {
+  const { bg, icon } = config[riskLevel];
 
   return (
     <Flex

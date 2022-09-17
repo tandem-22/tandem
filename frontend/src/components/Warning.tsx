@@ -2,10 +2,10 @@ import { Box, Flex, Heading, Icon, IconButton, Text } from "@chakra-ui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface Props {
-  setShowWarning: (prev: boolean) => void;
+  setPassing: (prev: "left" | "right" | null) => void;
 }
 
-export const Warning = ({ setShowWarning }: Props) => {
+export const Warning = ({ setPassing }: Props) => {
   return (
     <Flex
       bg="red.400"
@@ -28,7 +28,7 @@ export const Warning = ({ setShowWarning }: Props) => {
         _hover={{}}
         color="white"
         aria-label="Close"
-        onClick={() => setShowWarning(false)}
+        onClick={() => setPassing(null)}
       />
       <Box color="white">
         <Heading fontSize="6xl">Watch out!</Heading>
