@@ -1,13 +1,17 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Status } from "@/components/Status";
+import { Warning } from "@/components/Warning";
+import { useState } from "react";
 
 const VIDEO_FEED_URL = "http://localhost:3001";
 // const VIDEO_FEED_URL = "1.jpg";
 
 // Dimensions of the 7 in. RPI screen are 800 x 480
 const Home: NextPage = () => {
+  const [showWarning, setShowWarning] = useState(false);
+
   return (
     <>
       <Head>
@@ -34,9 +38,10 @@ const Home: NextPage = () => {
               <Text>12.94 km/h</Text>
             </Box>
           </Box>
-          <Status state="warning" />
+          <Status state="warning" onClick={() => setShowWarning(true)} />
         </Flex>
       </Box>
+      {showWarning && <Warning setShowWarning={setShowWarning} />}
     </>
   );
 };
