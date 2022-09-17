@@ -51,9 +51,6 @@ const Home: NextPage = () => {
             }
           });
         });
-      } else {
-        setCity("Could not find location");
-        setPremise("Location services disabled");
       }
       const webSocket = new WebSocket("ws://localhost:3001/ws");
       webSocket.onmessage = ({ data }: { data: string }) => {
@@ -76,7 +73,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Create Next App</title>
+        <title>SentinelBike</title>
       </Head>
       <Box
         p="8"
