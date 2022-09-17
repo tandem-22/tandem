@@ -29,7 +29,7 @@ detection_nn.setConfidenceThreshold(0.7)
 cam_rgb.preview.link(detection_nn.input)
 
 resize = pipeline.createImageManip()
-resize.setResize(336, 192)
+resize.initialConfig.setResize(437, 250)
 cam_rgb.preview.link(resize.inputImage)
 
 # XLinkOut is a "way out" from the device. Any data you want to transfer to host need to be send via XLink
