@@ -70,9 +70,6 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <Head>
-        <title>SentinelBike</title>
-      </Head>
       <Box
         color="gray.200"
         bg={`url(${VIDEO_FEED_URL})`}
@@ -101,6 +98,20 @@ const Home: NextPage = () => {
               <Text>{formattedDate}</Text>
             </Box>
           </Box>
+        )}
+
+        {showHUD && (
+          <Button
+            pos="fixed"
+            top="36"
+            left="8"
+            colorScheme="twitter"
+            rounded="full"
+            p="5"
+            onClick={() => router.push("https://htn-tandem.herokuapp.com/")}
+          >
+            View Map
+          </Button>
         )}
 
         <Flex
