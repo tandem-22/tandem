@@ -1,6 +1,5 @@
 import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { Status } from "@/components/Status";
 import { Blindspot } from "@/components/Blindspot";
 import { useEffect, useState } from "react";
@@ -23,6 +22,8 @@ const Home: NextPage = () => {
   });
   const { formattedDate } = useDate();
   const [riskLevel, setRiskLevel] = useState<0 | 1 | 2>(0);
+
+  const [time] = useState(new Date());
 
   useEffect(() => {
     if (read) {
@@ -144,7 +145,13 @@ const Home: NextPage = () => {
               </Button>
               <Button
                 colorScheme="red"
-                onClick={() => router.push("/done")}
+                onClick={() => {
+                  const endTime = new Date();
+                  const timeDiff = endTime.getTime() - time.getTime();
+                  const minutes = Math.floor(timeDiff / 1000 / 60);
+                  const seconds = Math.floor((timeDiff / 1000) % 60);
+                  router.push(`/done?m=${minutes}&s=${seconds}`, undefined);
+                }}
                 rounded="full"
                 p="5"
               >

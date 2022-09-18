@@ -15,7 +15,7 @@ const Done = () => {
       <Text>
         You total travel time was:{" "}
         <Text as="span" fontWeight="bold">
-          3 minutes, 10 seconds
+          {router.query.m} minutes, {router.query.s} seconds
         </Text>{" "}
       </Text>
       <Button
