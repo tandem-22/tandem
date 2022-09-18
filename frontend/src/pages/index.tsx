@@ -123,7 +123,12 @@ const Home: NextPage = () => {
           </Button>
           {showHUD && (
             <>
-              <Button colorScheme="orange" rounded="full" p="5">
+              <Button
+                colorScheme="orange"
+                rounded="full"
+                p="5"
+                onClick={() => router.push("/report")}
+              >
                 Report Incident
               </Button>
               <Button
