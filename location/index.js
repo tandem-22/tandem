@@ -9,6 +9,10 @@ app.use(express.json());
 app.use(express.static("public"));
 app.use(cors());
 
+const BACKEND_URL = process.env.IS_DEPLOYED
+  ? "https://htn-tandem.herokuapp.com"
+  : "http://localhost:8080";
+
 app.get("/", async (req, res) => {
   // html response
   res.send(`
@@ -58,7 +62,7 @@ app.get("/", async (req, res) => {
         });
 
         // make this a get request to /locations
-        let features = fetch("http://localhost:8080/location").then((res) => res.json()).then((data) => {
+        let features = fetch("${BACKEND_URL}/location").then((res) => res.json()).then((data) => {
           for (const feature of data) {
             // create a HTML element for each feature
             const el = document.createElement('div');
