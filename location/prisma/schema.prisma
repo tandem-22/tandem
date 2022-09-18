@@ -12,4 +12,5 @@ model Locations {
   lat         Decimal
   long        Decimal
   type        String
+  description String
 }

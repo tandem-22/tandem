@@ -1,11 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
+import cors from "cors";
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
 app.use(express.static("public"));
+app.use(cors());
 
 app.get("/", async (req, res) => {
   // html response
@@ -56,7 +58,7 @@ app.get("/", async (req, res) => {
         });
 
         // make this a get request to /locations
-        let features = fetch("http://localhost:3000/location").then((res) => res.json()).then((data) => {
+        let features = fetch("http://localhost:8080/location").then((res) => res.json()).then((data) => {
           for (const feature of data) {
             // create a HTML element for each feature
             const el = document.createElement('div');
@@ -80,7 +82,8 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/location", async (req, res) => {
-  const { lat, long, type } = req.body;
+  console.log("Got a request");
+  const { lat, long, type, description } = req.body;
 
   if (!lat || !long || !type) {
     return res.status(400).send("Missing required fields");
@@ -107,6 +110,7 @@ app.post("/location", async (req, res) => {
         lat,
         long,
         type,
+        description,
       },
     })
     .catch((err) => {
@@ -122,6 +126,6 @@ app.get("/location", async (req, res) => {
   res.json(locations);
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(8080, () => {
+  console.log("Server running on port 8080");
 });

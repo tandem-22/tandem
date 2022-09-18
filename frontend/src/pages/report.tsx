@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { SubmitHandler, useForm } from "react-hook-form";
+import axios from "axios";
 
 interface Inputs {
   latitude: number;
@@ -28,14 +29,20 @@ const Report = () => {
     formState: { errors },
     getValues,
   } = useForm<Inputs>();
-
-  console.log(getValues());
-
-  const onSubmit: SubmitHandler<Inputs> = (values) => {
-    console.log(values);
-  };
-
   const router = useRouter();
+
+  const onSubmit: SubmitHandler<Inputs> = async ({
+    description,
+    latitude,
+    longitude,
+    type,
+  }) => {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/location` as string,
+      { lat: Number(latitude), long: Number(longitude), type, description }
+    );
+    router.push("/");
+  };
 
   return (
     <Flex
